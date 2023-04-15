@@ -15,12 +15,16 @@ app.secret_key = s[0].strip()
 def hash(data):
     return hashlib.sha224(data.replace('\n', '').encode('ascii')).hexdigest()
 
+# @app.route('/')
+# def index():
+#     conn = get_db_connection()
+#     posts = conn.execute('SELECT * FROM posts').fetchall()
+#     conn.close()
+#     return render_template('index.html', posts=posts)
+
 @app.route('/')
 def index():
-    conn = get_db_connection()
-    posts = conn.execute('SELECT * FROM posts').fetchall()
-    conn.close()
-    return render_template('index.html', posts=posts)
+    return render_template('welcome.html')
 
 
 def get_db_connection():
@@ -90,6 +94,10 @@ def delete(id):
     conn.close()
     flash('"{}" was successfully deleted!'.format(post['title']))
     return redirect(url_for('index'))
+
+@app.route('/calculator', methods=('GET', 'POST'))
+def calculator():
+    return render_template('calculator.html')
 
 if __name__ == '__main__':
     app.run(host = "143.42.2.212", debug= True)
