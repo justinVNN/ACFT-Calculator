@@ -1,45 +1,76 @@
 {%extends 'pagebase.html' %}
 
-{% block title %} Calculator 🧮{% endblock %}
+{% block title %} ACFT Calculator {% endblock %}
 
 {% block content %}
 <div class="container">
     <h1>
-        Calculator 🧮
+        ACFT Calculator 🏋️‍♂️
     </h1>
     <br>
     <form action="/calculator" method="POST">
+        <h2>Age and Gender</h2>
         <div class="form-group">
-            <input type="number" name="weight" pattern="[0-9]" class="form-control" placeholder="Enter weight" required
-                min="1" max="1000">
+            <input type="number" name="age" pattern="[0-9]" class="form-control" placeholder="Enter age" required
+                min="1" max="100">
         </div>
-        <button id="submit-button" type="submit" class="btn btn-default">Update</button>
+        <div class="form-group">
+            <input type="text" name="gender" pattern="(?:m|M|male|Male|f|F|female|Female|FEMALE|MALE|Not prefer to say)$" class="form-control" placeholder="Enter gender as Male or Female" required>
+        </div>
+        <br>
+        <h2>Max 3 Repetition Deadlift</h2>
+        <div class="form-group">
+            <input type="number" name="MDL" pattern="[0-9]" class="form-control" placeholder="Enter weight in lbs." required
+                min="1" max="340">
+        </div>
+        <br>
+        <h2>Standing Power Throw</h2>
+        <div class="form-group">
+            <input type="number" name="SPT" pattern="[+-]?([0-9]*[.])?[0-9]+" class="form-control" placeholder="Enter distance in meters" required
+                min="1" max="340">
+        </div>
+        <br>
+        <h2>Hand Release Pushups</h2>
+        <div class="form-group">
+            <input type="number" name="HRP" pattern="[0-9]" class="form-control" placeholder="Enter amount of pushups" required
+                min="1" max="340">
+        </div>
+        <br>
+        <h2>Sprint Drag Carry</h2>
+        <div class="form-group">
+            <input type="number" name="SDC_min" pattern="[0-9]" class="form-control" placeholder="Enter time in minutes" required
+                min="1" max="340">
+        </div>
+        <div class="form-group">
+            <input type="number" name="SDC_sec" pattern="[0-9]" class="form-control" placeholder="Enter time in seconds" required
+                min="0" max="340">
+        </div>
+        <br>
+        <h2>Plank</h2>
+        <div class="form-group">
+            <input type="number" name="PLK_min" pattern="[0-9]" class="form-control" placeholder="Enter time in minutes" required
+                min="1" max="340">
+        </div>
+        <div class="form-group">
+            <input type="number" name="PLK_sec" pattern="[0-9]" class="form-control" placeholder="Enter time in seconds" required
+                min="0" max="340">
+        </div>
+        <br>
+        <h2>2 Mile Run</h2>
+        <div class="form-group">
+            <input type="number" name="2MR_min" pattern="[0-9]" class="form-control" placeholder="Enter time in minutes" required
+                min="1" max="340">
+        </div>
+        <div class="form-group">
+            <input type="number" name="2MR_sec" pattern="[0-9]" class="form-control" placeholder="Enter time in seconds" required
+                min="0" max="340">
+        </div>
+        <br>
+        <button id="submit-button" type="submit" class="btn btn-default">Enter</button>
     </form>
     <br>
-    <br>
-    {% if data is defined %}
-    <h2>Plates/Side @ {{weight}}</h2>
-    <div class="row">
-        {% for key, value in data.items() %}
-        {% if value != 0 %}
-        <div class="column">
-            <div class="card">
-                <h2>
-                    {{key}} lb.
-                </h2>
-                <p>
-                    {{value}}
-                </p>
-            </div>
-        </div>
-        {% endif %}
-        {% endfor %}
-    </div>
-    {% elif error is defined %}
-    <h1>{{error}}</h1>
-    {% else %}
-    <h1>No result</h1>
-    {% endif %}
+    <h1> Total Score: {{ total_score }} </h1>
+
 </div>
 
 {% endblock %}
