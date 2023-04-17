@@ -4,7 +4,6 @@ from werkzeug.exceptions import abort
 from os import path
 import hashlib
 import pandas as pd
-import sys
 
 app = Flask(__name__)
 ROOT = path.dirname(path.realpath(__file__))
@@ -141,7 +140,7 @@ def calculator():
     elif request.method == 'POST':
         age = request.form.get('age')
         gender = request.form.get('gender')
-        deadlift = request.form.get('MDL')  
+        deadlift = request.form.get('MDL') 
         standing_power_throw = request.form.get('SPT')
         hand_release_push_up = request.form.get('HRP')
         
@@ -176,6 +175,8 @@ def calculator():
             age = 57
         elif age >= 62:
             age = 62
+        else:
+            age = 0
         
         #RAW_SCORE is stored strings
         #get the score for each event
