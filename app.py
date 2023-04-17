@@ -100,13 +100,14 @@ def delete(id):
 def get_event_score(age,gender,event,raw_score):
     df = pd.read_csv(f'ACFT_SCORES/{event}_{gender.upper()}.csv')
     points_earned = 0
-    raw_score = float(raw_score.strip())
-    if raw_score >= float(df[f'{age}'][len(df)-1]):
-        return df['Points'][len(df)-1]
-    
+    raw_score = float(raw_score)
+    # if raw_score > float(df[f'{age}'][len(df)-1]):
+    #     return df['Points'][len(df)-1]
     if event == "SDC" or event == "2MR":
         #if the event is the sprint drag carry or the two mile run, the scores are in reverse order
-        for i in reversed(range(len(df))):
+        if raw_score <= float(df[f'{age}'][len(df)-1]):
+            return df['Points'][len(df)-1]
+        for i in range(len(df)):
             try:
                 age_score = float(df[f'{age}'][i])
             except:
@@ -114,8 +115,8 @@ def get_event_score(age,gender,event,raw_score):
             if age_score == raw_score:
                 points_earned = df['Points'][i]
                 break
-            elif age_score > raw_score:
-                points_earned = df['Points'][i+1]
+            elif age_score < raw_score:
+                points_earned = df['Points'][i-1]
                 break
         return points_earned
     for i in range(len(df)):
@@ -145,21 +146,9 @@ def calculator():
         hand_release_push_up = request.form.get('HRP')
         
         #combine the minutes and seconds into one value and convert to seconds
-        sprint_drag_carry = request.form.get('SDC_min')
-        plank= request.form.get('PLK_min')
-        two_mile_run = request.form.get('2MR_min')
-        if request.form.get('SDC_sec') == '0':
-            sprint_drag_carry = sprint_drag_carry + '00'
-        else:
-            sprint_drag_carry = sprint_drag_carry + request.form.get('SDC_sec')
-        if request.form.get('PLK_sec') == '0':
-            plank = plank + '00'
-        else:
-            plank = plank + request.form.get('PLK_sec')
-        if request.form.get('2MR_sec') == '0':
-            two_mile_run = two_mile_run + '00'
-        else:
-            two_mile_run = two_mile_run + request.form.get('2MR_sec')
+        sprint_drag_carry = request.form.get('SDC').replace(':','')
+        plank= request.form.get('PLK').replace(':','')
+        two_mile_run = request.form.get('2MR').replace(':','')
         
         
         EVENT_NAME = ["MDL", "SPT", "HRP", "SDC", "PLK", "2MR"]
