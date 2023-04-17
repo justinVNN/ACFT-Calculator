@@ -98,17 +98,34 @@ def delete(id):
     return redirect(url_for('index'))
 
 def get_event_score(age,gender,event,raw_score):
-    df = pd.read_csv(f'{event}_{gender.upper()}.csv')
-    df = df[[f'{age}', 'Points']]
-    score_index = df.index[df[f'{age}'] == raw_score].tolist()
-    if score_index == []:
-        #if the raw score is not in the column, use the next highest value
-        score_index = df.index[df[f'{age}'] > raw_score].tolist()
-        score_index = score_index[2]
-        points_earned = df.iloc[score_index]['Points']
-    else:
-        points_earned = df.iloc[score_index]['Points'].values[0]
-    return int(points_earned)
+    df = pd.read_csv(f'ACFT_SCORES/{event}_{gender.upper()}.csv')
+    points_earned = 0
+    raw_score = float(raw_score.strip())
+    if event == "SDC" or event == "2MR":
+        for i in reversed(range(len(df))):
+            try:
+                age_score = float(df[f'{age}'][i])
+            except:
+                continue
+            if age_score == raw_score:
+                points_earned = df['Points'][i]
+                break
+            elif age_score > raw_score:
+                points_earned = df['Points'][i+1]
+                break
+        return points_earned
+    for i in range(len(df)):
+        try:
+            age_score = float(df[f'{age}'][i])
+        except:
+            continue
+        if age_score == raw_score:
+            points_earned = df['Points'][i]
+            break
+        elif age_score > raw_score:
+            points_earned = df['Points'][i-1]
+            break
+    return points_earned
 
 
 @app.route('/calculator', methods=('GET', 'POST'))
@@ -124,13 +141,22 @@ def calculator():
         hand_release_push_up = request.form.get('HRP')
         
         #combine the minutes and seconds into one value and convert to seconds
-        sprint_drag_carry = request.form.get('SDC_min') +":"+ request.form.get('SDC_sec')
-        plank= request.form.get('PLK_min') +":"+ request.form.get('PLK_sec')
-        two_mile_run = request.form.get('2MR_min') +":"+ request.form.get('2MR_sec')
-        #convert the time to seconds
-        sprint_drag_carry = str((int(sprint_drag_carry.split(':')[0]) * 60) + int(sprint_drag_carry.split(':')[1]))
-        plank = str((int(plank.split(':')[0]) * 60) + int(plank.split(':')[1]))
-        two_mile_run = str((int(two_mile_run.split(':')[0]) * 60) + int(two_mile_run.split(':')[1]))
+        sprint_drag_carry = request.form.get('SDC_min')
+        plank= request.form.get('PLK_min')
+        two_mile_run = request.form.get('2MR_min')
+        if request.form.get('SDC_sec') == '0':
+            sprint_drag_carry = sprint_drag_carry + '00'
+        else:
+            sprint_drag_carry = sprint_drag_carry + request.form.get('SDC_sec')
+        if request.form.get('PLK_sec') == '0':
+            plank = plank + '00'
+        else:
+            plank = plank + request.form.get('PLK_sec')
+        if request.form.get('2MR_sec') == '0':
+            two_mile_run = two_mile_run + '00'
+        else:
+            two_mile_run = two_mile_run + request.form.get('2MR_sec')
+        
         
         EVENT_NAME = ["MDL", "SPT", "HRP", "SDC", "PLK", "2MR"]
         RAW_SCORE = [deadlift, standing_power_throw, hand_release_push_up, sprint_drag_carry, plank, two_mile_run]
@@ -161,11 +187,14 @@ def calculator():
         #RAW_SCORE is stored strings
         #get the score for each event
         FINAL_SCORE = 0
+        SCORE_LIST = []
         for i in range(len(EVENT_NAME)):
-            FINAL_SCORE += get_event_score(age, gender, EVENT_NAME[i],RAW_SCORE[i])
-        return render_template('calculator.html', total_score = FINAL_SCORE)
+            SCORE_LIST.append(get_event_score(age,gender,EVENT_NAME[i],RAW_SCORE[i]))
+        FINAL_SCORE = sum(SCORE_LIST)
+    
         
-    # return render_template('calculator.html')
+        return render_template('calculator.html', total_score=FINAL_SCORE, MDL_score = SCORE_LIST[0], SPT_score = SCORE_LIST[1], HRP_score = SCORE_LIST[2], SDC_score = SCORE_LIST[3], PLK_score = SCORE_LIST[4], TWOMR_score = SCORE_LIST[5])
+        
 
 if __name__ == '__main__':
     app.run(host = "143.42.2.212", debug= True)
