@@ -101,7 +101,11 @@ def get_event_score(age,gender,event,raw_score):
     df = pd.read_csv(f'ACFT_SCORES/{event}_{gender.upper()}.csv')
     points_earned = 0
     raw_score = float(raw_score.strip())
+    if raw_score >= float(df[f'{age}'][len(df)-1]):
+        return df['Points'][len(df)-1]
+    
     if event == "SDC" or event == "2MR":
+        #if the event is the sprint drag carry or the two mile run, the scores are in reverse order
         for i in reversed(range(len(df))):
             try:
                 age_score = float(df[f'{age}'][i])
